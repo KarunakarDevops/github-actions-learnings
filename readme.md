@@ -56,3 +56,6 @@ https://docs.microsoft.com/en-us/azure/azure-resource-manager/bicep/deploy-githu
     - AZURE_CLIENT_ID
     - AZURE_SUBSCRIPTION_ID
     - AZURE_TENANT_ID
+
+-- Houssem Dellai
+https://github.com/HoussemDellai/github-actions-course/blob/main/.github/workflows/040-github-linter.yml
