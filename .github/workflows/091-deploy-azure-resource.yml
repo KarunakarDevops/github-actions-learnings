@@ -1,0 +1,31 @@
+# https://docs.github.com/en/actions/deployment/security-hardening-your-deployments/configuring-openid-connect-in-azure
+  name: 090-oidc-azure
+  on:
+    push:
+      branches: [ none ]
+    
+    # Allows you to run this workflow manually from the Actions tab
+    workflow_dispatch:
+
+  jobs: 
+    build-and-deploy:
+      runs-on: ubuntu-latest
+      steps:
+        - uses: actions/checkout@v3
+
+        - name: Echo Script
+          run: |
+            echo "starting with bicep deployment"
+
+        - name: 'Az CLI login'
+          uses: azure/login@v1
+          with:
+            creds: '${{ secrets.AZURE_CREDENTIALS }}'
+    
+        - name: Deploy the bicep script
+          uses: azure/arm-deploy@v1
+          with:
+            subscriptionId: '${{ secrets.AZURE_SUBSCRIPTION_ID }}'
+            scope: 'subscription'
+            template: 'infra/main.bicep'
+            parameters: 'infra/main.bicepparam'
