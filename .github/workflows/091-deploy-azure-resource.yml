@@ -1,31 +1,32 @@
 # https://docs.github.com/en/actions/deployment/security-hardening-your-deployments/configuring-openid-connect-in-azure
-  name: 091-deploy-azure-resource
-  on:
-    push:
-      branches: [ none ]
-    
-    # Allows you to run this workflow manually from the Actions tab
-    workflow_dispatch:
+name: 091-deploy-azure-resource
+on:
+  push:
+    branches: [none]
 
-  jobs: 
-    build-and-deploy:
-      runs-on: ubuntu-latest
-      steps:
-        - uses: actions/checkout@v3
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
 
-        - name: Echo Script
-          run: |
-            echo "starting with bicep deployment"
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
 
-        - name: 'Az CLI login'
-          uses: azure/login@v1
-          with:
-            creds: '${{ secrets.AZURE_CREDENTIALS }}'
-    
-        - name: Deploy the bicep script
-          uses: azure/arm-deploy@v1
-          with:
-            subscriptionId: '${{ secrets.AZURE_SUBSCRIPTION_ID }}'
-            scope: 'subscription'
-            template: 'infra/main.bicep'
-            parameters: 'infra/main.bicepparam'
+      - name: Echo Script
+        run: |
+          echo "starting with bicep deployment"
+
+      - name: "Az CLI login"
+        uses: azure/login@v1
+        with:
+          creds: "${{ secrets.AZURE_CREDENTIALS }}"
+
+      - name: Deploy the bicep script
+        uses: azure/arm-deploy@v1
+        with:
+          subscriptionId: "${{ secrets.AZURE_SUBSCRIPTION_ID }}"
+          scope: "subscription"
+          region: "westus3"
+          template: "infra/main.bicep"
+          parameters: "infra/main.bicepparam"
