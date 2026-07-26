@@ -1,5 +1,5 @@
 # https://docs.github.com/en/actions/deployment/security-hardening-your-deployments/configuring-openid-connect-in-azure
-name: 092-deploy-azure-resource
+name: 091.1-deploy-azure-resource
 on:
   push:
     branches: [none]
@@ -52,20 +52,9 @@ jobs:
             --location westus3 \
             --template-file infra/main.bicep \
             --parameters infra/main.bicepparam environment=${{ inputs.environment }}
-  hold-for-approval:
-    needs: preview-infra
-    environment: ${{ inputs.environment }}
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
 
-      - name: Await environment approval
-        run: |
-          echo "Waiting for environment reviewers to approve deployment to '${{ inputs.environment }}'."
-
-  build-and-deploy:
-    needs: [validate-infra, preview-infra, hold-for-approval]
-    environment: ${{ inputs.environment }}
+  deploy-infra:
+    needs: [validate-infra, preview-infra]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
