@@ -1,6 +1,10 @@
 # https://docs.github.com/en/actions/deployment/security-hardening-your-deployments/configuring-openid-connect-in-azure
-name: 092-deploy-azure-resource
+name: 091.4-deploy-azure-resource
 on:
+  push:
+    branches: [none]
+
+  # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
     inputs:
       dev:
@@ -20,30 +24,12 @@ on:
         type: boolean
 
 jobs:
-  validate-selection:
+  prepare-infra:
     runs-on: ubuntu-latest
-    steps:
-      - name: Check selected environments
-        run: |
-          if [ "${{ inputs.dev }}" != 'true' ] && [ "${{ inputs.test }}" != 'true' ] && [ "${{ inputs.prod }}" != 'true' ]; then
-            echo 'No environment selected. Please enable at least one of dev, test, or prod.'
-            exit 1
-          fi
-
-  deploy-infra:
-    needs: validate-selection
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        environment: [dev, test, prod]
-    if: ${{ (matrix.environment == 'dev' && inputs.dev) || (matrix.environment == 'test' && inputs.test) || (matrix.environment == 'prod' && inputs.prod) }}
-    environment: ${{ matrix.environment }}
+ 
+    if: ${{ (inputs.dev)}}
     steps:
       - uses: actions/checkout@v3
-
-      - name: Echo target environment
-        run: |
-          echo "Deploying environment: ${{ matrix.environment }}"
 
       - name: Az CLI login
         uses: azure/login@v1
@@ -55,14 +41,32 @@ jobs:
           az deployment sub validate \
             --location westus3 \
             --template-file infra2/main.bicep \
-            --parameters infra2/main-${{ matrix.environment }}.bicepparam
+            --parameters infra2/main-dev.bicepparam
 
       - name: Preview subscription-scope Bicep changes
         run: |
           az deployment sub what-if \
             --location westus3 \
             --template-file infra2/main.bicep \
-            --parameters infra2/main-${{ matrix.environment }}.bicepparam
+            --parameters infra2/main-dev.bicepparam
+
+  deploy-infra:
+    needs: prepare-infra
+    runs-on: ubuntu-latest
+ 
+    if: ${{ (inputs.dev)}}
+    environment: ${{ matrix.environment }}
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Echo Script
+        run: |
+          echo "starting deploy for ${{ matrix.environment }}"
+
+      - name: "Az CLI login"
+        uses: azure/login@v1
+        with:
+          creds: "${{ secrets.AZURE_CREDENTIALS }}"
 
       - name: Deploy the bicep script
         uses: azure/arm-deploy@v1
@@ -71,4 +75,4 @@ jobs:
           scope: "subscription"
           region: "westus3"
           template: "infra2/main.bicep"
-          parameters: "infra2/main-${{ matrix.environment }}.bicepparam"
+          parameters: "infra2/main-dev.bicepparam"
