@@ -41,14 +41,14 @@ jobs:
           az deployment sub validate \
             --location westus3 \
             --template-file infra2/main.bicep \
-            --parameters @infra2/main-${{ matrix.environment }}.bicepparam
+            --parameters @infra2/main-dev.bicepparam
 
       - name: Preview subscription-scope Bicep changes
         run: |
           az deployment sub what-if \
             --location westus3 \
             --template-file infra2/main.bicep \
-            --parameters @infra2/main-${{ matrix.environment }}.bicepparam
+            --parameters @infra2/main-dev.bicepparam
 
   deploy-infra:
     needs: prepare-infra
@@ -75,4 +75,4 @@ jobs:
           scope: "subscription"
           region: "westus3"
           template: "infra2/main.bicep"
-          parameters: "infra2/main-${{ matrix.environment }}.bicepparam"
+          parameters: "infra2/main-dev.bicepparam"
