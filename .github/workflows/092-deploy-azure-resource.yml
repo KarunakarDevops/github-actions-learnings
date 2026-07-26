@@ -53,7 +53,7 @@ jobs:
             --template-file infra/main.bicep \
             --parameters infra/main.bicepparam environment=${{ inputs.environment }}
 
-  build-and-deploy:
+  deploy-infra:
     needs: [validate-infra, preview-infra]
     runs-on: ubuntu-latest
     steps:
