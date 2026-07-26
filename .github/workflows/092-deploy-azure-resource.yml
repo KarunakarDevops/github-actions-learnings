@@ -8,17 +8,17 @@ on:
   workflow_dispatch:
     inputs:
       dev:
-        description: 'Deploy dev environment'
+        description: "Deploy dev environment"
         required: false
         default: true
         type: boolean
       test:
-        description: 'Deploy test environment'
+        description: "Deploy test environment"
         required: false
         default: false
         type: boolean
       prod:
-        description: 'Deploy prod environment'
+        description: "Deploy prod environment"
         required: false
         default: false
         type: boolean
@@ -26,10 +26,8 @@ on:
 jobs:
   prepare-infra:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        environment: ['dev', 'test', 'prod']
-    if: ${{ (matrix.environment == 'dev' && inputs.dev) || (matrix.environment == 'test' && inputs.test) || (matrix.environment == 'prod' && inputs.prod) }}
+ 
+    if: ${{ (inputs.dev)}}
     steps:
       - uses: actions/checkout@v3
 
@@ -55,10 +53,8 @@ jobs:
   deploy-infra:
     needs: prepare-infra
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        environment: ['dev', 'test', 'prod']
-    if: ${{ (matrix.environment == 'dev' && inputs.dev) || (matrix.environment == 'test' && inputs.test) || (matrix.environment == 'prod' && inputs.prod) }}
+ 
+    if: ${{ (inputs.dev)}}
     environment: ${{ matrix.environment }}
     steps:
       - uses: actions/checkout@v3
