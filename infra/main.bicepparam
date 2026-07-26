@@ -4,7 +4,7 @@ param location = 'westus3'
 param namePrefix = 'pcdb'
 param environment = 'dev' // The environment of the web app
 
-param storageName = 'spacpddfcs' // The name of the storage account
+param storageName = 'space' // The name of the storage account
 param storageSku = 'Standard_LRS' // The SKU of the storage account
 
 param appServicePlanSku = 'B1' // The SKU of App Service Plan
