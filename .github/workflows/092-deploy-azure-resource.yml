@@ -33,7 +33,7 @@ jobs:
           az deployment sub validate \
             --location westus3 \
             --template-file infra2/main.bicep \
-            --parameters @infra2/main-${{ inputs.environment }}.bicepparam
+            --parameters infra2/main-${{ inputs.environment }}.bicepparam
 
   preview-infra:
     needs: validate-infra
@@ -51,7 +51,7 @@ jobs:
           az deployment sub what-if \
             --location westus3 \
             --template-file infra2/main.bicep \
-            --parameters @infra2/main-${{ inputs.environment }}.bicepparam
+            --parameters infra2/main-${{ inputs.environment }}.bicepparam
   
   deploy-infra:
     needs: [validate-infra, preview-infra]
