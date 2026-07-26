@@ -1,0 +1,36 @@
+name: 092-prepare-infra
+
+on:
+  workflow_call:
+    inputs:
+      environment:
+        required: true
+        type: string
+    secrets:
+      AZURE_CREDENTIALS:
+        required: true
+
+jobs:
+  prepare-infra:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Az CLI login
+        uses: azure/login@v1
+        with:
+          creds: "${{ secrets.AZURE_CREDENTIALS }}"
+
+      - name: Validate subscription-scope Bicep
+        run: |
+          az deployment sub validate \
+            --location westus3 \
+            --template-file infra2/main.bicep \
+            --parameters infra2/main-${{ inputs.environment }}.bicepparam
+
+      - name: Preview subscription-scope Bicep changes
+        run: |
+          az deployment sub what-if \
+            --location westus3 \
+            --template-file infra2/main.bicep \
+            --parameters infra2/main-${{ inputs.environment }}.bicepparam

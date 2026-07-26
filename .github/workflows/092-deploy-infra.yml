@@ -1,0 +1,33 @@
+name: 092-deploy-infra
+
+on:
+  workflow_call:
+    inputs:
+      environment:
+        required: true
+        type: string
+    secrets:
+      AZURE_CREDENTIALS:
+        required: true
+      AZURE_SUBSCRIPTION_ID:
+        required: true
+
+jobs:
+  deploy-infra:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Az CLI login
+        uses: azure/login@v1
+        with:
+          creds: "${{ secrets.AZURE_CREDENTIALS }}"
+
+      - name: Deploy the bicep script
+        uses: azure/arm-deploy@v1
+        with:
+          subscriptionId: "${{ secrets.AZURE_SUBSCRIPTION_ID }}"
+          scope: "subscription"
+          region: "westus3"
+          template: "infra2/main.bicep"
+          parameters: "infra2/main-${{ inputs.environment }}.bicepparam"

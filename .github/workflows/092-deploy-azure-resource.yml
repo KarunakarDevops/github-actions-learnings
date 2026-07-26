@@ -23,52 +23,66 @@ jobs:
   validate-selection:
     runs-on: ubuntu-latest
     steps:
-      - name: Check selected environments
+      - name: Ensure at least one environment is selected
         run: |
           if [ "${{ inputs.dev }}" != 'true' ] && [ "${{ inputs.test }}" != 'true' ] && [ "${{ inputs.prod }}" != 'true' ]; then
-            echo 'No environment selected. Please enable at least one of dev, test, or prod.'
+            echo 'Error: select at least one of dev, test, or prod.'
             exit 1
           fi
 
-  deploy-infra:
+  prepare-dev:
+    if: ${{ inputs.dev }}
+    uses: ./.github/workflows/092-prepare-infra.yml
     needs: validate-selection
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        environment: [dev, test, prod]
-    if: ${{ (matrix.environment == 'dev' && inputs.dev) || (matrix.environment == 'test' && inputs.test) || (matrix.environment == 'prod' && inputs.prod) }}
-    environment: ${{ matrix.environment }}
-    steps:
-      - uses: actions/checkout@v3
+    with:
+      environment: dev
+    secrets:
+      AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
 
-      - name: Echo target environment
-        run: |
-          echo "Deploying environment: ${{ matrix.environment }}"
+  deploy-dev:
+    if: ${{ inputs.dev }}
+    needs: prepare-dev
+    uses: ./.github/workflows/092-deploy-infra.yml
+    with:
+      environment: dev
+    secrets:
+      AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
+      AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
-      - name: Az CLI login
-        uses: azure/login@v1
-        with:
-          creds: "${{ secrets.AZURE_CREDENTIALS }}"
+  prepare-test:
+    if: ${{ inputs.test }}
+    uses: ./.github/workflows/092-prepare-infra.yml
+    needs: validate-selection
+    with:
+      environment: test
+    secrets:
+      AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
 
-      - name: Validate subscription-scope Bicep
-        run: |
-          az deployment sub validate \
-            --location westus3 \
-            --template-file infra2/main.bicep \
-            --parameters infra2/main-${{ matrix.environment }}.bicepparam
+  deploy-test:
+    if: ${{ inputs.test }}
+    needs: prepare-test
+    uses: ./.github/workflows/092-deploy-infra.yml
+    with:
+      environment: test
+    secrets:
+      AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
+      AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
-      - name: Preview subscription-scope Bicep changes
-        run: |
-          az deployment sub what-if \
-            --location westus3 \
-            --template-file infra2/main.bicep \
-            --parameters infra2/main-${{ matrix.environment }}.bicepparam
+  prepare-prod:
+    if: ${{ inputs.prod }}
+    uses: ./.github/workflows/092-prepare-infra.yml
+    needs: validate-selection
+    with:
+      environment: prod
+    secrets:
+      AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
 
-      - name: Deploy the bicep script
-        uses: azure/arm-deploy@v1
-        with:
-          subscriptionId: "${{ secrets.AZURE_SUBSCRIPTION_ID }}"
-          scope: "subscription"
-          region: "westus3"
-          template: "infra2/main.bicep"
-          parameters: "infra2/main-${{ matrix.environment }}.bicepparam"
+  deploy-prod:
+    if: ${{ inputs.prod }}
+    needs: prepare-prod
+    uses: ./.github/workflows/092-deploy-infra.yml
+    with:
+      environment: prod
+    secrets:
+      AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
+      AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
