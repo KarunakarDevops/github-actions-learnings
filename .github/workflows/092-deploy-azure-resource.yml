@@ -1,0 +1,60 @@
+# https://docs.github.com/en/actions/deployment/security-hardening-your-deployments/configuring-openid-connect-in-azure
+name: 092-deploy-azure-resource
+on:
+  push:
+    branches: [none]
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Target deployment environment'
+        required: true
+        default: dev
+        type: choice
+        options:
+          - dev
+          - test
+          - prod
+
+jobs:
+  validate-infra:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Az CLI login
+        uses: azure/login@v1
+        with:
+          creds: "${{ secrets.AZURE_CREDENTIALS }}"
+
+      - name: Validate subscription-scope Bicep
+        run: |
+          az deployment sub validate \
+            --location westus3 \
+            --template-file infra/main.bicep \
+            --parameters infra/main.bicepparam environment=${{ inputs.environment }}
+
+  build-and-deploy:
+    needs: validate-infra
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Echo Script
+        run: |
+          echo "starting with bicep deployment"
+
+      - name: "Az CLI login"
+        uses: azure/login@v1
+        with:
+          creds: "${{ secrets.AZURE_CREDENTIALS }}"
+
+      - name: Deploy the bicep script
+        uses: azure/arm-deploy@v1
+        with:
+          subscriptionId: "${{ secrets.AZURE_SUBSCRIPTION_ID }}"
+          scope: "subscription"
+          region: "westus3"
+          template: "infra/main.bicep"
+          parameters: "infra/main.bicepparam environment=${{ inputs.environment }}"
