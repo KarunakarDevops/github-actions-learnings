@@ -35,8 +35,26 @@ jobs:
             --template-file infra/main.bicep \
             --parameters infra/main.bicepparam environment=${{ inputs.environment }}
 
-  build-and-deploy:
+  preview-infra:
     needs: validate-infra
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Az CLI login
+        uses: azure/login@v1
+        with:
+          creds: "${{ secrets.AZURE_CREDENTIALS }}"
+
+      - name: Preview subscription-scope Bicep changes
+        run: |
+          az deployment sub what-if \
+            --location westus3 \
+            --template-file infra/main.bicep \
+            --parameters infra/main.bicepparam environment=${{ inputs.environment }}
+
+  build-and-deploy:
+    needs: [validate-infra, preview-infra]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
