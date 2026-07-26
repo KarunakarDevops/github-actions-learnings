@@ -1,5 +1,5 @@
 # https://docs.github.com/en/actions/deployment/security-hardening-your-deployments/configuring-openid-connect-in-azure
-name: 092-deploy-azure-resource
+name: 091.2-deploy-azure-resource
 on:
   push:
     branches: [none]
@@ -32,8 +32,8 @@ jobs:
         run: |
           az deployment sub validate \
             --location westus3 \
-            --template-file infra2/main.bicep \
-            --parameters @infra2/main-${{ inputs.environment }}.bicepparam
+            --template-file infra/main.bicep \
+            --parameters infra/main.bicepparam environment=${{ inputs.environment }}
 
   preview-infra:
     needs: validate-infra
@@ -50,11 +50,22 @@ jobs:
         run: |
           az deployment sub what-if \
             --location westus3 \
-            --template-file infra2/main.bicep \
-            --parameters @infra2/main-${{ inputs.environment }}.bicepparam
+            --template-file infra/main.bicep \
+            --parameters infra/main.bicepparam environment=${{ inputs.environment }}
   
+  hold-for-approval:
+    needs: preview-infra
+    environment: ${{ inputs.environment }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Await environment approval
+        run: |
+          echo "Waiting for environment reviewers to approve deployment to '${{ inputs.environment }}'."
+
   deploy-infra:
-    needs: [validate-infra, preview-infra]
+    needs: [validate-infra, preview-infra, hold-for-approval]
     environment: ${{ inputs.environment }}
     runs-on: ubuntu-latest
     steps:
@@ -75,5 +86,5 @@ jobs:
           subscriptionId: "${{ secrets.AZURE_SUBSCRIPTION_ID }}"
           scope: "subscription"
           region: "westus3"
-          template: "infra2/main.bicep"
-          parameters: "infra2/main-${{ inputs.environment }}.bicepparam"
+          template: "infra/main.bicep"
+          parameters: "infra/main.bicepparam environment=${{ inputs.environment }}"
