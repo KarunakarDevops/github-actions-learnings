@@ -14,8 +14,8 @@ on:
         type: choice
         options:
           - dev
-          - test
-          - prod
+          - tst
+          - prd
 
 jobs:
   validate-infra:
