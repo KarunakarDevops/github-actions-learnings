@@ -59,3 +59,19 @@ https://docs.microsoft.com/en-us/azure/azure-resource-manager/bicep/deploy-githu
 
 -- Houssem Dellai
 https://github.com/HoussemDellai/github-actions-course/blob/main/.github/workflows/040-github-linter.yml
+
+
+
+-- Praveen kumar sreeram
+
+download VS code
+
+- Extensions VS
+bicep extension for VS code
+
+Az install
+az bicep install
+
+az --version
+az bicep --version
+
