@@ -1,7 +1,8 @@
 targetScope = 'resourceGroup'
 
-param pAppServicePlanName string 
-param pWebAppName string 
+param pEnv string
+param pAppServicePlanName string
+param pWebAppName string
 param pAppInsightsInstrumentationKey string
 
 @description(''' 
@@ -12,6 +13,7 @@ Please provide valid SKU name.Valid SKU names are:
 - B2 - Basic
 - B3 - Basic
 - S1 - Standard
+- S2 - Standard
 ''')
 @allowed(['F1', 'D1', 'B1', 'B2', 'B3', 'S1'])
 param pAppServicePlanSkuName string
@@ -46,7 +48,6 @@ resource azbicepas 'Microsoft.Web/sites@2021-02-01' = {
   }
 }
 
-
 resource azbicepwebapp1appsetting 'Microsoft.Web/sites/config@2021-02-01' = {
   name: 'web'
   parent: azbicepas
@@ -54,7 +55,7 @@ resource azbicepwebapp1appsetting 'Microsoft.Web/sites/config@2021-02-01' = {
     appSettings: [
       {
         name: 'APPINSIGHTS_INSTRUMENTATIONKEY'
-        value:pAppInsightsInstrumentationKey
+        value: pAppInsightsInstrumentationKey
       }
       {
         name: 'key1'
@@ -65,5 +66,14 @@ resource azbicepwebapp1appsetting 'Microsoft.Web/sites/config@2021-02-01' = {
         value: 'value2'
       }
     ]
+  }
+}
+
+resource webappSlot 'Microsoft.Web/sites/slots@2021-02-01' = if (pEnv == 'dev') {
+  parent: azbicepas
+  name: 'staging'
+  location: resourceGroup().location
+  properties: {
+    serverFarmId: azbicepasp1.id
   }
 }

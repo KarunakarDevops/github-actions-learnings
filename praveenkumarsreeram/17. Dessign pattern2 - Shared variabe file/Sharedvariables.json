@@ -1,0 +1,9 @@
+{
+    "projectPrefix": "azbicep",
+    "appserviceplanprefix": "asp",
+    "webappprefix": "webapp",
+    "appinsightsprefix": "ai",
+    "sqlserverprefix":"sqlserver",
+    "loganalyticsworkspaceprefix": "law",
+    "keyvaultprefix": "kv"
+}
