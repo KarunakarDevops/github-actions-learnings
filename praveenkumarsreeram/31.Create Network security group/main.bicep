@@ -1,8 +1,7 @@
-
 param pNetworkSecurityGroupName string
-param Location string = resourceGroup().location
+param pEnvironment string = 'dev'
 
-var nsg_rules=[
+var nsg_rules = [
   {
     name: 'AllowSSH'
     properties: {
@@ -43,10 +42,30 @@ var nsg_rules=[
     }
   }
 ]
+
+var nsg_dev_rules = [
+  {
+    name: 'Allow-3389'
+    properties: {
+      priority: 1003
+      protocol: 'Tcp'
+      access: 'Allow'
+      direction: 'Inbound'
+      sourceAddressPrefix: 'Internet'
+      sourcePortRange: '3389'
+      destinationAddressPrefix: '*'
+      destinationPortRange: '3389'
+    }
+  }
+]
+
+// Logical parameter pattern
+var nsg_final_rules = pEnvironment != 'dev' ? nsg_rules : concat(nsg_rules, nsg_dev_rules)
+
 resource networkSecurityGroup 'Microsoft.Network/networkSecurityGroups@2021-02-01' = {
   name: pNetworkSecurityGroupName
-  location: Location
+  location: resourceGroup().location
   properties: {
-    securityRules: nsg_rules
+    securityRules: nsg_final_rules
   }
 }
