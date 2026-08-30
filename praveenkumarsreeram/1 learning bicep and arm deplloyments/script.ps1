@@ -10,6 +10,9 @@ az account list --output table
 #set subscription
 az account set --subscription "Your Subscription Name"
 
+# SHow current account
+az account show --output table
+
 #delete resource group
 az group delete --name "group-bicep"
 
