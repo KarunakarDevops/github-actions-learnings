@@ -22,6 +22,23 @@ param virtualNetworkLinkName_AppService string = 'vnet-appservice-link'
 param privateEndpointName_AppService string = 'pe-${appServiceName}'
 param groupId_AppService string = 'sqlServer'
 
+
+@description('Windows VM name.')
+param vmName string = 'vm-windows-01'
+
+@description('Windows VM administrator username.')
+param vmAdminUsername string = 'azureadmin'
+
+@secure()
+@description('Windows VM administrator password.')
+param vmAdminPassword string
+
+@description('CIDR range allowed to connect to RDP.')
+param rdpSourceAddressPrefix string
+
+@description('Windows VM size.')
+param vmSize string = 'Standard_B2s'
+
 module vnet_Module './modules/vnet.bicep' = {
   name: 'vnet_module'
   params: {
@@ -46,6 +63,8 @@ module sqlDatabase_Module './modules/sqlDatabase.bicep' = {
     location: location
     sqlServerName: sqlServer_Module.outputs.sqlServerName
     sqlDatabaseName: sqlDatabaseName
+    sqlUsername: adminUsername
+    sqlPassword: adminPassword
   }
 }
 
@@ -109,4 +128,28 @@ module appServicePrivateEndpoint_Module './modules/privateEndpoint.bicep' = {
     resourceId: appService_Module.outputs.appServiceId
     subnetId: vnet_Module.outputs.webSubnetId
   }
+}
+
+module windowsVm './modules/virtualmachine.bicep' = {
+  name: 'deploy-windows-vm'
+
+  params: {
+    location: location
+
+    vmName: vmName
+
+    // Use the application subnet.
+    subnetId: vnet_Module.outputs.webSubnetId
+
+    adminUsername: vmAdminUsername
+    adminPassword: vmAdminPassword
+
+    rdpSourceAddressPrefix: rdpSourceAddressPrefix
+
+    vmSize: vmSize
+  }
+
+  dependsOn: [
+    vnet_Module
+  ]
 }

@@ -2,6 +2,9 @@ param location string = resourceGroup().location
 param sqlServerName string
 param sqlDatabaseName string
 
+param sqlUsername string
+param sqlPassword string
+
 resource sqlServer 'Microsoft.Sql/servers@2014-04-01' existing ={
   name: sqlServerName
 }
@@ -15,5 +18,5 @@ resource sqlServerDatabase 'Microsoft.Sql/servers/databases@2022-05-01-preview' 
       tier: 'Basic'
     }
 }
-output connectionString string = 'Server=tcp:${sqlServer.name}.${environment().suffixes.sqlServerHostname},1433;Initial Catalog=${sqlServerDatabase.name};Persist Security Info=False;User ID=<username>;Password=<password>;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;'
+output connectionString string = 'Server=tcp:${sqlServer.name}.${environment().suffixes.sqlServerHostname},1433;Initial Catalog=${sqlServerDatabase.name};Persist Security Info=False;User ID=${sqlUsername};Password=${sqlPassword};MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;'
 output sqlDatabaseName string = sqlServerDatabase.name
