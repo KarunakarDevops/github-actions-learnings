@@ -11,10 +11,6 @@ param pSubnets = [
     name: 'snet-web'
     addressPrefix: '10.0.2.0/24'
   }
-  {
-    name: 'snet-privateendpoints'
-    addressPrefix: '10.0.3.0/24'
-  }
 ]
 
 param location = 'centralindia'
@@ -27,3 +23,11 @@ param dnsZoneName = 'privatelink.database.windows.net'
 param virtualNetworkLinkName = 'vnet-sql-link'
 param privateEndpointName = 'pe-${sqlServerName}'
 param groupId = 'sqlServer'
+
+param appServicePlanName = 'az-pep-dev-cus-appserviceplan'
+param appServiceName = 'az-pep-dev-cus-appservice'
+
+param dnsZoneName_AppService = 'privatelink.azurewebsites.net'
+param virtualNetworkLinkName_AppService = 'vnet-appservice-link'
+param privateEndpointName_AppService = 'pe-${appServiceName}'
+param groupId_AppService = 'sites'

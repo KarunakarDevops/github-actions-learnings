@@ -13,6 +13,15 @@ param dnsZoneName string
 param groupId string
 param virtualNetworkLinkName string
 
+param appServicePlanName string
+param appServiceName string
+
+
+param dnsZoneName_AppService string = 'privatelink.azurewebsites.net'
+param virtualNetworkLinkName_AppService string = 'vnet-appservice-link'
+param privateEndpointName_AppService string = 'pe-${appServiceName}'
+param groupId_AppService string = 'sqlServer'
+
 module vnet_Module './modules/vnet.bicep' = {
   name: 'vnet_module'
   params: {
@@ -57,6 +66,47 @@ module privateEndpoint_Module './modules/privateEndpoint.bicep' = {
     groupId: groupId
     privateEndpointName: privateEndpointName
     resourceId: sqlServer_Module.outputs.sqlServerId
-    subnetId: vnet_Module.outputs.privateEndpointSubnetId
+    subnetId: vnet_Module.outputs.sqlSubnetId
+  }
+}
+
+module appService_Plan_Module './modules/appServicePlan.bicep' = {
+  name: 'appServicePlan_module'
+  params: {
+    location: location
+    appServicePlanName: appServicePlanName
+  }
+}
+module appService_Module './modules/appService.bicep' = {
+  name: 'appService_module'
+  params: {
+    appServiceName: appServiceName
+    location: location
+    sqlConnectionString: sqlDatabase_Module.outputs.connectionString
+    appServicePlanId: appService_Plan_Module.outputs.appServicePlanId
+    
+  }
+}
+
+//create private dns zone for app service
+module appServiceDnsZone_Module './modules/privatednsZone.bicep' = {
+  name: 'appServiceDnsZone_module'
+  params: {
+    dnsZoneName: dnsZoneName_AppService
+    pVnetId: vnet_Module.outputs.vNetId
+    virtualNetworkLinkName: virtualNetworkLinkName_AppService
+  }
+}
+
+//create private endpoint for app service
+module appServicePrivateEndpoint_Module './modules/privateEndpoint.bicep' = {
+  name: 'appServicePrivateEndpoint_module'
+  params: {
+    location: location
+    dnsZoneId: appServiceDnsZone_Module.outputs.dnsZoneId
+    groupId: groupId_AppService
+    privateEndpointName: privateEndpointName_AppService
+    resourceId: appService_Module.outputs.appServiceId
+    subnetId: vnet_Module.outputs.webSubnetId
   }
 }
