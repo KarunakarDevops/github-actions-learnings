@@ -1,15 +1,6 @@
 param pVnetName string
 
-param pSubnets array = [
-  {
-    name: 'snet-sql'
-    addressPrefix: '10.0.1.0/24'
-  }
-  {
-    name: 'snet-web'
-    addressPrefix: '10.0.2.0/24'
-  }
-]
+param pSubnets array
 
 resource virtualNetwork 'Microsoft.Network/virtualNetworks@2019-11-01' = {
   name: pVnetName
@@ -25,6 +16,7 @@ resource virtualNetwork 'Microsoft.Network/virtualNetworks@2019-11-01' = {
         name: subnet.name
         properties: {
           addressPrefix: subnet.addressPrefix
+          privateEndpointNetworkPolicies: 'Disabled'
         }
       }
     ]
@@ -33,3 +25,4 @@ resource virtualNetwork 'Microsoft.Network/virtualNetworks@2019-11-01' = {
 
 output vNetId string = virtualNetwork.id
 output sqlSubnetId string = resourceId('Microsoft.Network/virtualNetworks/subnets', pVnetName, 'snet-sql')
+output privateEndpointSubnetId string = resourceId('Microsoft.Network/virtualNetworks/subnets', pVnetName, 'snet-privateendpoints')

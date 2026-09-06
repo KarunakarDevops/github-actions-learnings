@@ -1,5 +1,6 @@
 param location string = resourceGroup().location
 param adminUsername string 
+@secure()
 param adminPassword string
 param sqlServerName string
 

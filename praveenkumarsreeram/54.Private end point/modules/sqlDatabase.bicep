@@ -15,5 +15,5 @@ resource sqlServerDatabase 'Microsoft.Sql/servers/databases@2022-05-01-preview' 
       tier: 'Basic'
     }
 }
-output connectionStrings string = 'Server=tcp:${sqlServer.name}.database.windows.net,1433;Initial Catalog=${sqlServerDatabase.name};Persist Security Info=False;User ID=<username>;Password=<password>;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;'
+output connectionStrings string = 'Server=tcp:${sqlServer.name}.${environment().suffixes.sqlServerHostname},1433;Initial Catalog=${sqlServerDatabase.name};Persist Security Info=False;User ID=<username>;Password=<password>;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;'
 output sqlDatabaseName string = sqlServerDatabase.name

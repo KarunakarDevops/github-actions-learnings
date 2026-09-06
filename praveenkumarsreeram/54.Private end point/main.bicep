@@ -2,6 +2,7 @@ param pVnetName string
 param pSubnets array
 param location string = resourceGroup().location
 param adminUsername string
+@secure()
 param adminPassword string
 param sqlServerName string
 param sqlDatabaseName string
@@ -56,6 +57,6 @@ module privateEndpoint_Module './modules/privateEndpoint.bicep' = {
     groupId: groupId
     privateEndpointName: privateEndpointName
     resourceId: sqlServer_Module.outputs.sqlServerId
-    subnetId: vnet_Module.outputs.sqlSubnetId
+    subnetId: vnet_Module.outputs.privateEndpointSubnetId
   }
 }
