@@ -3,3 +3,6 @@ az deployment sub create --name bicep-deployment1 --location centralindia --temp
 
 # deploy app service plan bicep
  az deployment group create --name "appserviceplan-deployment" -g "azbicepresourcegroup" -f "2.AppServicePlan.bicep" 
+
+# delete resource group
+az group delete --name azbicepresourcegroup --yes --no-wait 

@@ -54,8 +54,4 @@ resource azbicepwebapp1appsetting 'Microsoft.Web/sites/config@2021-02-01' = {
       }
     ]
   }
-  dependsOn: [
-    azbicepas
-    azbicepappinsights
-  ]
 }

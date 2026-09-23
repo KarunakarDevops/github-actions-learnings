@@ -1,3 +1,14 @@
+- VS code
+- Azure CLI
+    - Download MSI exe and install
+- Bicep CLI
+    - az bicep install (install via azure cli)
+- Bicep extension for VS code
+- ARM tools extension for VS code
+
+az account show
+az account set --subscription <subscritionid>
+
 - Install required extensions to work with git actions
     - GitHub Actions
 
@@ -60,4 +71,10 @@ https://docs.microsoft.com/en-us/azure/azure-resource-manager/bicep/deploy-githu
 -- Houssem Dellai
 https://github.com/HoussemDellai/github-actions-course/blob/main/.github/workflows/040-github-linter.yml
 
+
+Principle to learn any azure service
+    - Learn about azure service purpose
+    - How to use Service and learn its feature
+    - How to configure service or provision service using IAC
+    - How to integrate (Program) in applications/services
 

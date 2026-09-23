@@ -10,9 +10,13 @@
  # deploy appservice and confirm with what if
  az deployment group what-if --name appservice-deployment2 -g "azbicepresourcegroup" --template-file "2.AppServicePlan.bicep"
 
- # deploy appservice and confirm with  confirm with what if
+ # deploy appservice and confirm with  confirm with what if (--confirm-with-what-if)
 az deployment group create --name appservice-deployment2 -g "azbicepresourcegroup" --template-file "2.AppServicePlan.bicep" --confirm-with-what-if
 
 az deployment group create --name appservice-deployment2 -g "azbicepresourcegroup" --template-file "2.AppServicePlan.bicep" -c
 
+az deployment group create -g "azbicepresourcegroup" --template-file "2.AppServicePlan.bicep" --confirm-with-what-if
+
 az deployment group create --name appservice-deployment2 -g "azbicepresourcegroup" --template-file "3.SqlDatabase.bicep" -c
+
+
